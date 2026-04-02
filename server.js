@@ -97,10 +97,77 @@ fetchNASAUpdates();
 cron.schedule('*/15 * * * *', fetchNASAUpdates);
 
 // ─── PHOTO CACHE ──────────────────────────────────────────────────────────────
-let photoCache = [];
+let photoCache       = [];
+let pinnedPhotoCache = [];
 let photoLastFetched = null;
 
-// Exciting search terms covering launches, Moon, Earth, astronauts
+// ── Helper: NASA Images API search ──
+async function nasaImageSearch(query, extraParams = '') {
+  let url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(query)}&media_type=image&page_size=12`;
+  if (extraParams) url += '&' + extraParams;
+  const data = await httpsGet(url);
+  if (!data) return [];
+  try {
+    const parsed = JSON.parse(data);
+    return (parsed.collection?.items || [])
+      .filter(i => i.links?.[0]?.href)
+      .map(i => ({
+        url:    i.links[0].href,
+        title:  (i.data?.[0]?.title       || '').replace(/&#\d+;/g, '').trim().substring(0, 80),
+        desc:   (i.data?.[0]?.description || '').replace(/\n/g, ' ').trim().substring(0, 160),
+        date:   i.data?.[0]?.date_created || '',
+        source: 'NASA',
+      }));
+  } catch { return []; }
+}
+
+// ── Helper: public Flickr feed (no API key needed) ──
+async function flickrPublicFeed(userId, sourceName) {
+  const url = `https://api.flickr.com/services/feeds/photos_public.gne?id=${userId}&format=json&nojsoncallback=1`;
+  const data = await httpsGet(url);
+  if (!data) return [];
+  try {
+    const parsed = JSON.parse(data);
+    return (parsed.items || [])
+      .map(i => ({
+        url:    (i.media?.m || '').replace('_m.jpg', '_b.jpg'),
+        title:  (i.title || sourceName).trim().substring(0, 80),
+        desc:   (i.description || '').replace(/<[^>]*>/g, '').trim().substring(0, 160),
+        date:   i.date_taken || '',
+        source: sourceName,
+      }))
+      .filter(i => i.url);
+  } catch { return []; }
+}
+
+// ── Pinned: actual launch photos — always in gallery ──
+// Tries Artemis II 2026 first; falls back to Artemis I 2022 launch shots
+const LAUNCH_PHOTO_QUERIES = [
+  { q: 'Artemis II SLS launch 2026 liftoff',             params: 'year_start=2026',              want: 5 },
+  { q: 'Artemis SLS launch Kennedy liftoff 2022',        params: 'year_start=2022&year_end=2023', want: 5 },
+  { q: 'SLS Space Launch System liftoff fire rocket',    params: '',                              want: 4 },
+  { q: 'rocket launch NASA Kennedy fire smoke night',    params: '',                              want: 3 },
+];
+
+async function fetchLaunchPhotos() {
+  const results = [];
+  const seen    = new Set();
+  for (const { q, params, want } of LAUNCH_PHOTO_QUERIES) {
+    if (results.length >= 8) break;
+    const items = (await nasaImageSearch(q, params))
+      .slice(0, want)
+      .map(p => ({ ...p, pinned: true, badge: '🚀 LAUNCH' }));
+    for (const p of items) {
+      if (!p.url || seen.has(p.url)) continue;
+      seen.add(p.url);
+      results.push(p);
+    }
+  }
+  pinnedPhotoCache = results.slice(0, 8);
+  console.log(`Pinned launch photos: ${pinnedPhotoCache.length}`);
+}
+
+// ── Dynamic: broad multi-source queries fill the rest of the gallery ──
 const NASA_PHOTO_QUERIES = [
   'artemis SLS Orion spacecraft launch',
   'rocket launch liftoff fire smoke',
@@ -110,82 +177,44 @@ const NASA_PHOTO_QUERIES = [
   'astronaut spacewalk EVA',
 ];
 
-async function nasaImageSearch(query) {
-  const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(query)}&media_type=image&page_size=12`;
-  const data = await httpsGet(url);
-  if (!data) return [];
-  try {
-    const parsed = JSON.parse(data);
-    return (parsed.collection?.items || [])
-      .filter(i => i.links?.[0]?.href)
-      .map(i => ({
-        url: i.links[0].href,
-        title: (i.data?.[0]?.title || '').replace(/&#\d+;/g, '').trim().substring(0, 80),
-        desc:  (i.data?.[0]?.description || '').replace(/\n/g, ' ').trim().substring(0, 160),
-        date:  i.data?.[0]?.date_created || '',
-        source: 'NASA',
-      }));
-  } catch { return []; }
-}
-
-// Public Flickr feed — no API key needed
-async function flickrPublicFeed(userId, sourceName) {
-  const url = `https://api.flickr.com/services/feeds/photos_public.gne?id=${userId}&format=json&nojsoncallback=1`;
-  const data = await httpsGet(url);
-  if (!data) return [];
-  try {
-    const parsed = JSON.parse(data);
-    return (parsed.items || [])
-      .map(i => ({
-        url: (i.media?.m || '').replace('_m.jpg', '_b.jpg'),
-        title: (i.title || sourceName).trim().substring(0, 80),
-        desc:  (i.description || '').replace(/<[^>]*>/g, '').trim().substring(0, 160),
-        date:  i.date_taken || '',
-        source: sourceName,
-      }))
-      .filter(i => i.url);
-  } catch { return []; }
-}
-
 async function fetchAllPhotos() {
-  console.log('Fetching photos from NASA Images API, SpaceX Flickr, NASA Flickr...');
+  console.log('Fetching photos from all sources...');
 
-  // All requests fire in parallel
-  const [spacexPhotos, nasaFlickrPhotos, ...nasaApiResults] = await Promise.all([
-    flickrPublicFeed('130608600@N05', 'SpaceX'),   // SpaceX public Flickr
-    flickrPublicFeed('44494372@N05',  'NASA'),      // NASA HQ public Flickr
+  // Pinned launch photos + dynamic sources in parallel
+  const [, spacexPhotos, nasaFlickrPhotos, ...nasaApiResults] = await Promise.all([
+    fetchLaunchPhotos(),
+    flickrPublicFeed('130608600@N05', 'SpaceX'),  // SpaceX public Flickr
+    flickrPublicFeed('44494372@N05',  'NASA'),     // NASA HQ public Flickr
     ...NASA_PHOTO_QUERIES.map(q => nasaImageSearch(q)),
   ]);
 
   const nasaApiPhotos = nasaApiResults.flat();
 
-  // Priority: Artemis/Orion/SLS first, then SpaceX launches, then NASA general
-  const prioritized = [
+  // Pinned photos go first; dynamic fill after, deduped
+  const seenUrls = new Set(pinnedPhotoCache.map(p => p.url));
+
+  const dynamic = [
     ...nasaApiPhotos.filter(p => /artemis|orion|sls/i.test(p.title + ' ' + p.desc)),
     ...spacexPhotos,
     ...nasaApiPhotos.filter(p => /launch|rocket|liftoff|fire/i.test(p.title + ' ' + p.desc)),
     ...nasaFlickrPhotos,
     ...nasaApiPhotos,
-  ];
+  ].filter(p => {
+    if (!p.url || seenUrls.has(p.url)) return false;
+    seenUrls.add(p.url);
+    return true;
+  });
 
-  // Deduplicate by URL
-  const seen = new Set();
-  const result = [];
-  for (const p of prioritized) {
-    if (!p.url || seen.has(p.url)) continue;
-    seen.add(p.url);
-    result.push(p);
-    if (result.length >= 28) break;
-  }
+  const result = [...pinnedPhotoCache, ...dynamic].slice(0, 30);
 
   if (result.length > 0) {
-    photoCache = result;
+    photoCache       = result;
     photoLastFetched = new Date();
-    console.log(`[${photoLastFetched.toISOString()}] Cached ${result.length} photos`);
+    console.log(`[${photoLastFetched.toISOString()}] Cached ${result.length} photos (${pinnedPhotoCache.length} pinned launch shots)`);
   }
 }
 
-// Fetch photos on startup, then every 30 minutes
+// Fetch on startup, then every 30 minutes
 fetchAllPhotos();
 cron.schedule('*/30 * * * *', fetchAllPhotos);
 

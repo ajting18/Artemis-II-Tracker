@@ -161,11 +161,13 @@ async function loadPhotos() {
       const desc   = (p.desc   || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
       const source = p.source || '';
       const badgeColor = SOURCE_COLORS[source] || '#1a56db';
-      const badge = source ? `<div class="photo-source-badge" style="background:${badgeColor}">${source}</div>` : '';
+      const sourceBadge  = source ? `<div class="photo-source-badge" style="background:${badgeColor}">${source}</div>` : '';
+      const launchBadge  = p.pinned ? `<div class="photo-launch-badge">${p.badge || '🚀 LAUNCH'}</div>` : '';
+      const pinnedClass  = p.pinned ? ' photo-item--pinned' : '';
       return `
-        <div class="photo-item" onclick="openLightbox('${p.url}','${title}','${desc}')">
+        <div class="photo-item${pinnedClass}" onclick="openLightbox('${p.url}','${title}','${desc}')">
           <img src="${p.url}" alt="${title}" loading="lazy" onerror="this.parentElement.style.display='none'"/>
-          ${badge}
+          ${launchBadge}${sourceBadge}
           <div class="photo-overlay"><div class="photo-caption">${title}</div></div>
         </div>`;
     }).join('') + `

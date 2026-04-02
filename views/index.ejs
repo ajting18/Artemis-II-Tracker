@@ -27,6 +27,7 @@
       <li><a href="#updates">Updates</a></li>
       <li><a href="#photos">Photos</a></li>
       <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#videos">Videos</a></li>
     </ul>
     <span class="nav-badge">🔴 LIVE</span>
   </nav>
@@ -168,6 +169,86 @@
       <div class="card-body">
         <div class="photo-gallery" id="photoGallery">
           <div class="photo-loading"><div class="spinner"></div> Loading mission photos…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIDEOS -->
+    <section class="card videos-section" id="videos">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17,2 12,7 7,2"/></svg>
+          Mission Videos
+        </div>
+        <a href="https://www.youtube.com/@NASA" target="_blank" style="font-size:0.75rem;color:var(--cyan);text-decoration:none">NASA YouTube →</a>
+      </div>
+      <div class="card-body">
+        <!-- Featured video -->
+        <div class="video-featured" id="videoFeatured">
+          <div class="video-featured-embed">
+            <iframe id="featuredIframe" src="https://www.youtube.com/embed/Vg-EQ7MOu6I?rel=0" allowfullscreen title="Featured Video"></iframe>
+          </div>
+          <div class="video-featured-info">
+            <div class="video-badge">🎬 OFFICIAL TRAILER</div>
+            <div class="video-featured-title">Around the Moon for All Humanity: Artemis II</div>
+            <div class="video-featured-desc">The official cinematic launch trailer for NASA's Artemis II mission — humanity's first crewed journey beyond low Earth orbit since Apollo 17. Four astronauts. Ten days. Around the Moon and back.</div>
+            <div class="video-meta"><span>1M+ views</span><span>NASA</span><span>1:16</span></div>
+          </div>
+        </div>
+
+        <!-- Video grid -->
+        <div class="video-grid">
+          <div class="video-card" onclick="playFeatured('Tf_UjBMIzNo','NASA\'s Artemis II Crew Launches To The Moon (Official Broadcast)','The complete official NASA broadcast of the Artemis II launch — from countdown through liftoff, stage separation, and solar array deployment. 14 million views and counting.','🚀 OFFICIAL LAUNCH','14M views · 6h 22m')">
+            <div class="video-thumb">
+              <img src="https://img.youtube.com/vi/Tf_UjBMIzNo/maxresdefault.jpg" alt="Official Launch Broadcast" onerror="this.src='https://img.youtube.com/vi/Tf_UjBMIzNo/hqdefault.jpg'"/>
+              <div class="video-play-btn">▶</div>
+              <div class="video-duration">6:22:22</div>
+            </div>
+            <div class="video-card-info">
+              <div class="video-card-tag">🚀 Official Launch</div>
+              <div class="video-card-title">Artemis II Crew Launches To The Moon (Official Broadcast)</div>
+              <div class="video-card-meta">14M views · NASA</div>
+            </div>
+          </div>
+
+          <div class="video-card" onclick="playFeatured('6RwfNBtepa4','NASA\'s Artemis II Live Views from Orion','Stunning live footage beamed back from the Orion spacecraft as it travels toward the Moon — Earth growing smaller in the window as the crew ventures deeper into space.','📡 LIVE FROM ORION','Live · NASA')">
+            <div class="video-thumb">
+              <img src="https://img.youtube.com/vi/6RwfNBtepa4/maxresdefault.jpg" alt="Live Views from Orion" onerror="this.src='https://img.youtube.com/vi/6RwfNBtepa4/hqdefault.jpg'"/>
+              <div class="video-play-btn">▶</div>
+              <div class="video-duration">LIVE</div>
+            </div>
+            <div class="video-card-info">
+              <div class="video-card-tag">📡 Live from Orion</div>
+              <div class="video-card-title">NASA's Artemis II Live Views from Orion</div>
+              <div class="video-card-meta">Live · NASA</div>
+            </div>
+          </div>
+
+          <div class="video-card" onclick="playFeatured('Ke6XX8FHOHM','Artemis II: Launch to Splashdown (Mission Animation)','NASA\'s stunning animated overview of the entire Artemis II mission — from liftoff through lunar flyby to Pacific Ocean splashdown. Every maneuver, burn, and milestone visualized.','🌙 MISSION ANIMATION','1.7M views · 7:45')">
+            <div class="video-thumb">
+              <img src="https://img.youtube.com/vi/Ke6XX8FHOHM/maxresdefault.jpg" alt="Mission Animation" onerror="this.src='https://img.youtube.com/vi/Ke6XX8FHOHM/hqdefault.jpg'"/>
+              <div class="video-play-btn">▶</div>
+              <div class="video-duration">7:45</div>
+            </div>
+            <div class="video-card-info">
+              <div class="video-card-tag">🌙 Mission Animation</div>
+              <div class="video-card-title">Launch to Splashdown (Mission Animation)</div>
+              <div class="video-card-meta">1.7M views · NASA</div>
+            </div>
+          </div>
+
+          <div class="video-card" onclick="playFeatured('7XzhtWcepos','Artemis II: Mission Overview','Everything you need to know about the Artemis II mission — objectives, trajectory, spacecraft systems, crew roles, and what makes this mission a historic step toward returning humans to the lunar surface.','📋 MISSION OVERVIEW','396K views · 4:30')">
+            <div class="video-thumb">
+              <img src="https://img.youtube.com/vi/7XzhtWcepos/maxresdefault.jpg" alt="Mission Overview" onerror="this.src='https://img.youtube.com/vi/7XzhtWcepos/hqdefault.jpg'"/>
+              <div class="video-play-btn">▶</div>
+              <div class="video-duration">4:30</div>
+            </div>
+            <div class="video-card-info">
+              <div class="video-card-tag">📋 Mission Overview</div>
+              <div class="video-card-title">Artemis II: Mission Overview</div>
+              <div class="video-card-meta">396K views · NASA</div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

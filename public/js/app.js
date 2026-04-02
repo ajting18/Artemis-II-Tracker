@@ -188,6 +188,18 @@ document.getElementById('lightbox').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeLightbox();
 });
 
+// ─── VIDEO PLAYER ────────────────────────────────────────────────────────────
+function playFeatured(id, title, desc, badge, meta) {
+  document.getElementById('featuredIframe').src =
+    `https://www.youtube.com/embed/${id}?rel=0&autoplay=1`;
+  document.querySelector('.video-featured-title').textContent = title;
+  document.querySelector('.video-featured-desc').textContent = desc;
+  document.querySelector('.video-badge').textContent = badge;
+  document.querySelector('.video-meta').innerHTML =
+    meta.split('·').map(s => `<span>${s.trim()}</span>`).join('');
+  document.getElementById('videos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 // ─── LAST UPDATED ────────────────────────────────────────────────────────────
 function updateTimestamp() {
   document.getElementById('lastUpdated').textContent = new Date().toLocaleString();

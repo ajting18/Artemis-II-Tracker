@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artemis II Mission Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <svg viewBox="0 0 36 36" fill="none">
+        <circle cx="18" cy="18" r="17" stroke="#f59e0b" stroke-width="1.5"/>
+        <circle cx="18" cy="18" r="10" stroke="#06b6d4" stroke-width="1"/>
+        <ellipse cx="18" cy="18" rx="17" ry="7" stroke="rgba(245,158,11,0.4)" stroke-width="1" transform="rotate(-20 18 18)"/>
+        <circle cx="18" cy="8" r="2.5" fill="#f59e0b"/>
+      </svg>
+      ARTEMIS&nbsp;II
+    </div>
+    <ul class="nav-links">
+      <li><a href="#location">Location</a></li>
+      <li><a href="#livestream">Live</a></li>
+      <li><a href="#updates">Updates</a></li>
+      <li><a href="#photos">Photos</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+    </ul>
+    <span class="nav-badge">🔴 LIVE</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">NASA Artemis Program — Crewed Lunar Mission</div>
+    <h1 class="hero-title">ARTEMIS II</h1>
+    <p class="hero-subtitle">Humanity's Return to the Moon — Live Mission Tracker</p>
+    <div class="met-container">
+      <div class="met-label">Mission Elapsed Time (MET)</div>
+      <div class="met-clock" id="metClock">T+ <span>00</span>d <span>00</span>h <span>00</span>m <span>00</span>s</div>
+    </div>
+  </section>
+
+  <!-- STATUS STRIP -->
+  <div class="status-strip">
+    <div class="status-pill"><div class="dot dot-green"></div> All Systems Nominal</div>
+    <div class="status-pill"><div class="dot dot-gold"></div> <span id="statusPhase">Phase: Loading...</span></div>
+    <div class="status-pill"><div class="dot dot-cyan"></div> Crew: 4 Aboard Orion</div>
+    <div class="status-pill"><div class="dot dot-blue"></div> Launched: April 1, 2026 — 6:24 PM EDT</div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- LOCATION -->
+    <section class="card location-section" id="location">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg>
+          Orion Spacecraft Location
+        </div>
+        <span style="font-size:0.7rem;color:var(--text-dim)">Updated live</span>
+      </div>
+      <div class="card-body">
+        <div class="orbit-visual">
+          <canvas id="orbitCanvas"></canvas>
+        </div>
+        <div class="location-stats">
+          <div class="stat-box">
+            <div class="stat-label">Distance from Earth</div>
+            <div class="stat-value" id="distEarth">—</div>
+            <div class="stat-unit">kilometers</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Distance from Moon</div>
+            <div class="stat-value" id="distMoon">—</div>
+            <div class="stat-unit">kilometers</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Current Velocity</div>
+            <div class="stat-value" id="velocity">—</div>
+            <div class="stat-unit">km/h</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Phase</div>
+            <div class="stat-value" id="missionPhase" style="font-size:0.75rem;color:var(--gold)">—</div>
+            <div class="stat-unit">mission status</div>
+          </div>
+        </div>
+        <a href="https://www.nasa.gov/missions/artemis/artemis-2/track-nasas-artemis-ii-mission-in-real-time/" target="_blank" class="arow-link">
+          Track on NASA AROW (Real-Time Official Tracker) →
+        </a>
+      </div>
+    </section>
+
+    <!-- LIVE STREAM -->
+    <section class="card livestream-section" id="livestream">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+          Live Coverage — NASA TV
+        </div>
+        <span class="nav-badge" style="font-size:0.6rem">LIVE</span>
+      </div>
+      <div class="card-body">
+        <div class="stream-embed">
+          <iframe
+            src="https://www.youtube.com/embed/live_stream?channel=UCVTomc35agH1SM6kCKzwW_g&autoplay=0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            title="NASA TV Live Stream"
+          ></iframe>
+        </div>
+        <div class="stream-links">
+          <a href="https://www.youtube.com/@NASA/live" target="_blank" class="stream-link yt">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2a2.73 2.73 0 0 0-1.9-1.9C18 5 12 5 12 5s-6 0-7.7.3A2.73 2.73 0 0 0 2.4 7.2 28.6 28.6 0 0 0 2 12a28.6 28.6 0 0 0 .4 4.8 2.73 2.73 0 0 0 1.9 1.9C6 19 12 19 12 19s6 0 7.7-.3a2.73 2.73 0 0 0 1.9-1.9A28.6 28.6 0 0 0 22 12a28.6 28.6 0 0 0-.4-4.8zM10 15V9l5.2 3z"/></svg>
+            NASA YouTube
+          </a>
+          <a href="https://www.nasa.gov/nasatv" target="_blank" class="stream-link nasa">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17,2 12,7 7,2"/></svg>
+            NASA TV
+          </a>
+          <a href="https://www.twitch.tv/nasa" target="_blank" class="stream-link twitch">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.6 6H13v4.5h-1.4V6zm3.8 0h1.4v4.5h-1.4V6zM4 2L2 6v14h4v3l3-3h2.5L21 15V2H4zm15.5 12L17 16.5H14l-2.5 2.5v-2.5H7V3.5h12.5V14z"/></svg>
+            Twitch
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPDATES -->
+    <section class="card updates-section" id="updates">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h12"/></svg>
+          Mission Updates
+        </div>
+        <span style="font-size:0.7rem;color:var(--text-dim)" id="updateTimestamp">Refreshing...</span>
+      </div>
+      <div class="card-body">
+        <div class="updates-grid" id="updatesGrid"></div>
+      </div>
+    </section>
+
+    <!-- PHOTOS -->
+    <section class="card photos-section" id="photos">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+          Mission Photography
+        </div>
+        <a href="https://www.flickr.com/photos/nasakennedy/" target="_blank" style="font-size:0.75rem;color:var(--cyan);text-decoration:none">NASA Flickr →</a>
+      </div>
+      <div class="card-body">
+        <div class="photo-gallery" id="photoGallery">
+          <div class="photo-loading"><div class="spinner"></div> Loading mission photos…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="card timeline-section" id="timeline">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+          Mission Timeline
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="timeline">
+          <% timeline.forEach(item => { %>
+          <div class="timeline-item">
+            <div class="timeline-dot <%= item.status %>"></div>
+            <div class="timeline-date"><%= item.date %></div>
+            <div class="timeline-event"><%= item.event %></div>
+            <div class="timeline-desc"><%= item.desc %></div>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+
+    <!-- CREW -->
+    <section class="card crew-section" id="crew">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Artemis II Crew
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="crew-grid">
+          <% crew.forEach(member => { %>
+          <div class="crew-card">
+            <div class="crew-avatar" style="background: <%= member.gradient %>"><%= member.initials %></div>
+            <div>
+              <div class="crew-name"><%= member.name %> <span class="crew-flag"><%= member.flag %></span></div>
+              <div class="crew-role"><%= member.role %></div>
+              <div class="crew-bio"><%= member.bio %></div>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">×</button>
+    <img id="lightboxImg" src="" alt="" />
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Data sourced from <a href="https://www.nasa.gov/mission/artemis-ii/" target="_blank">NASA Artemis II Mission</a> · Photos via <a href="https://images.nasa.gov" target="_blank">NASA Image Library</a> · Not an official NASA product</p>
+    <p style="margin-top:0.5rem">Last updated: <span id="lastUpdated"></span></p>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

@@ -428,6 +428,20 @@ main {
 }
 .photo-item:hover .photo-overlay { opacity: 1; }
 .photo-caption { font-size: 0.72rem; color: white; line-height: 1.4; }
+.photo-source-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 2;
+  pointer-events: none;
+}
 .photo-loading {
   display: flex;
   align-items: center;

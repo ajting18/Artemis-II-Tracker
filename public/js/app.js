@@ -155,17 +155,22 @@ async function loadPhotos() {
     const res = await fetch('/api/photos');
     const data = await res.json();
     if (!data.items || data.items.length === 0) throw new Error('No photos');
+    const SOURCE_COLORS = { SpaceX: '#005288', NASA: '#1a56db' };
     gallery.innerHTML = data.items.map(p => {
-      const title = (p.title || '').replace(/'/g, '&#39;');
-      const desc  = (p.desc  || '').replace(/'/g, '&#39;');
+      const title  = (p.title  || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+      const desc   = (p.desc   || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+      const source = p.source || '';
+      const badgeColor = SOURCE_COLORS[source] || '#1a56db';
+      const badge = source ? `<div class="photo-source-badge" style="background:${badgeColor}">${source}</div>` : '';
       return `
         <div class="photo-item" onclick="openLightbox('${p.url}','${title}','${desc}')">
           <img src="${p.url}" alt="${title}" loading="lazy" onerror="this.parentElement.style.display='none'"/>
+          ${badge}
           <div class="photo-overlay"><div class="photo-caption">${title}</div></div>
         </div>`;
     }).join('') + `
       <div style="grid-column:1/-1;text-align:center;margin-top:0.5rem">
-        <a href="https://images.nasa.gov/search?q=artemis+II" target="_blank" style="color:var(--cyan);font-size:0.8rem;text-decoration:none">Browse full NASA Image Library →</a>
+        <a href="https://images.nasa.gov/search?q=artemis+launch+rocket" target="_blank" style="color:var(--cyan);font-size:0.8rem;text-decoration:none">Browse full NASA Image Library →</a>
       </div>`;
   } catch {
     gallery.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:2rem;font-size:0.85rem">

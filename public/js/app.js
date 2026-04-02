@@ -148,45 +148,29 @@ function drawOrbit(state) {
   ctx.fillText('ORION', orionX, orionY - 14);
 }
 
-// ─── PHOTOS (NASA Images API) ────────────────────────────────────────────────
+// ─── PHOTOS (via server /api/photos → NASA Images API) ───────────────────────
 async function loadPhotos() {
   const gallery = document.getElementById('photoGallery');
-  const staticPhotos = [
-    { url: 'https://www.nasa.gov/wp-content/uploads/2023/03/jsc2023e024823.jpg', title: 'Artemis II Crew Portrait', desc: 'The Artemis II crew: Jeremy Hansen, Victor Glover, Reid Wiseman, Christina Koch' },
-    { url: 'https://www.nasa.gov/wp-content/uploads/2023/04/ksc-20230403-ph-kls01_0013orig.jpg', title: 'Orion Spacecraft at KSC', desc: 'Orion capsule and European Service Module integrated at Kennedy Space Center' },
-    { url: 'https://www.nasa.gov/wp-content/uploads/2024/10/artemis-ii-crew-training.jpg', title: 'Crew Training', desc: 'Artemis II crew during mission simulation training' },
-  ];
-
   try {
-    const q = encodeURIComponent('artemis II orion moon');
-    const res = await fetch(`https://images-api.nasa.gov/search?q=${q}&media_type=image&year_start=2022&page_size=12`);
+    const res = await fetch('/api/photos');
     const data = await res.json();
-    const items = data.collection?.items?.filter(i => i.links?.[0]?.href) || [];
-    if (items.length === 0) throw new Error('No items');
-
-    gallery.innerHTML = items.slice(0, 12).map(item => {
-      const img = item.links[0].href;
-      const meta = item.data?.[0] || {};
-      const title = (meta.title || '').substring(0, 80);
-      const desc = (meta.description || '').substring(0, 120);
+    if (!data.items || data.items.length === 0) throw new Error('No photos');
+    gallery.innerHTML = data.items.map(p => {
+      const title = (p.title || '').replace(/'/g, '&#39;');
+      const desc  = (p.desc  || '').replace(/'/g, '&#39;');
       return `
-        <div class="photo-item" onclick="openLightbox('${img}', \`${title.replace(/`/g, '')}\`, \`${desc.replace(/`/g, '')}\`)">
-          <img src="${img}" alt="${title}" loading="lazy" onerror="this.parentElement.style.display='none'"/>
+        <div class="photo-item" onclick="openLightbox('${p.url}','${title}','${desc}')">
+          <img src="${p.url}" alt="${title}" loading="lazy" onerror="this.parentElement.style.display='none'"/>
           <div class="photo-overlay"><div class="photo-caption">${title}</div></div>
         </div>`;
-    }).join('');
-  } catch {
-    gallery.innerHTML = staticPhotos.map(p => `
-      <div class="photo-item" onclick="openLightbox('${p.url}', '${p.title}', '${p.desc}')">
-        <img src="${p.url}" alt="${p.title}" loading="lazy" onerror="this.parentElement.style.display='none'"/>
-        <div class="photo-overlay"><div class="photo-caption">${p.title}</div></div>
-      </div>
-    `).join('') + `
+    }).join('') + `
       <div style="grid-column:1/-1;text-align:center;margin-top:0.5rem">
-        <a href="https://images.nasa.gov/search?q=artemis+II" target="_blank" style="color:var(--cyan);font-size:0.8rem;text-decoration:none">
-          Browse full NASA Image Library for Artemis II →
-        </a>
+        <a href="https://images.nasa.gov/search?q=artemis+II" target="_blank" style="color:var(--cyan);font-size:0.8rem;text-decoration:none">Browse full NASA Image Library →</a>
       </div>`;
+  } catch {
+    gallery.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:2rem;font-size:0.85rem">
+      Photos loading… <a href="https://images.nasa.gov/search?q=artemis+II" target="_blank" style="color:var(--cyan)">Browse NASA Image Library →</a>
+    </div>`;
   }
 }
 
@@ -223,3 +207,5 @@ updateLocation();
 setInterval(updateClock, 1000);
 setInterval(updateLocation, 5000);
 setInterval(updateTimestamp, 60000);
+setInterval(loadUpdates, 5 * 60 * 1000);   // refresh updates every 5 min
+setInterval(loadPhotos,  30 * 60 * 1000);  // refresh photos every 30 min

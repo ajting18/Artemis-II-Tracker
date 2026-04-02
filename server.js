@@ -167,37 +167,83 @@ async function fetchLaunchPhotos() {
   console.log(`Pinned launch photos: ${pinnedPhotoCache.length}`);
 }
 
-// ── Dynamic: broad multi-source queries fill the rest of the gallery ──
+// ── NASA APOD (Astronomy Picture of the Day) — free demo key ──
+async function fetchAPOD(count = 10) {
+  const url = `https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=${count}&thumbs=true`;
+  const data = await httpsGet(url);
+  if (!data) return [];
+  try {
+    const parsed = JSON.parse(data);
+    return (Array.isArray(parsed) ? parsed : [parsed])
+      .filter(i => i.media_type === 'image' && (i.url || i.hdurl))
+      .map(i => ({
+        url:    i.hdurl || i.url,
+        title:  (i.title || 'NASA APOD').substring(0, 80),
+        desc:   (i.explanation || '').replace(/\n/g, ' ').substring(0, 160),
+        date:   i.date || '',
+        source: 'NASA APOD',
+      }));
+  } catch { return []; }
+}
+
+// ── Dynamic: broad multi-source queries ──
 const NASA_PHOTO_QUERIES = [
   'artemis SLS Orion spacecraft launch',
   'rocket launch liftoff fire smoke',
-  'SLS Space Launch System',
-  'Moon lunar surface',
-  'Earth from orbit astronaut view',
-  'astronaut spacewalk EVA',
+  'SLS Space Launch System rollout',
+  'Moon lunar surface crater',
+  'Earth from orbit overview effect',
+  'astronaut spacewalk EVA ISS',
+  'artemis crew astronaut portrait',
+  'rocket engine plume fire night',
+  'deep space nebula galaxy Hubble',
+  'lunar orbit gateway mission',
+];
+
+// Public Flickr accounts — no API key required
+const FLICKR_ACCOUNTS = [
+  { id: '130608600@N05', name: 'SpaceX'     },  // SpaceX
+  { id: '44494372@N05',  name: 'NASA'       },  // NASA HQ
+  { id: '32164988@N03',  name: 'NASA JPL'   },  // NASA Jet Propulsion Lab
+  { id: '36847180@N04',  name: 'NASA KSC'   },  // NASA Kennedy Space Center
+  { id: '24662369@N07',  name: 'NASA GSFC'  },  // NASA Goddard
+  { id: '23299288@N00',  name: 'ESA'        },  // European Space Agency
+  { id: '118803614@N05', name: 'NASA MSFC'  },  // NASA Marshall Space Flight Center
 ];
 
 async function fetchAllPhotos() {
   console.log('Fetching photos from all sources...');
 
-  // Pinned launch photos + dynamic sources in parallel
-  const [, spacexPhotos, nasaFlickrPhotos, ...nasaApiResults] = await Promise.all([
+  // All in parallel: pinned launch photos + every Flickr account + all NASA API queries + APOD
+  const results = await Promise.all([
     fetchLaunchPhotos(),
-    flickrPublicFeed('130608600@N05', 'SpaceX'),  // SpaceX public Flickr
-    flickrPublicFeed('44494372@N05',  'NASA'),     // NASA HQ public Flickr
+    fetchAPOD(12),
+    ...FLICKR_ACCOUNTS.map(a => flickrPublicFeed(a.id, a.name)),
     ...NASA_PHOTO_QUERIES.map(q => nasaImageSearch(q)),
   ]);
 
-  const nasaApiPhotos = nasaApiResults.flat();
+  // results[0] = undefined (fetchLaunchPhotos updates pinnedPhotoCache in-place)
+  const apodPhotos    = results[1];
+  const flickrPhotos  = results.slice(2, 2 + FLICKR_ACCOUNTS.length).flat();
+  const nasaApiPhotos = results.slice(2 + FLICKR_ACCOUNTS.length).flat();
 
-  // Pinned photos go first; dynamic fill after, deduped
+  // Priority ordering within dynamic pool
   const seenUrls = new Set(pinnedPhotoCache.map(p => p.url));
 
   const dynamic = [
+    // Artemis/Orion/SLS specific NASA API results first
     ...nasaApiPhotos.filter(p => /artemis|orion|sls/i.test(p.title + ' ' + p.desc)),
-    ...spacexPhotos,
+    // SpaceX launch photos
+    ...flickrPhotos.filter(p => p.source === 'SpaceX'),
+    // NASA KSC (most likely to have Artemis launch photos)
+    ...flickrPhotos.filter(p => p.source === 'NASA KSC'),
+    // APOD (stunning astronomy images)
+    ...apodPhotos,
+    // Rocket/launch NASA API results
     ...nasaApiPhotos.filter(p => /launch|rocket|liftoff|fire/i.test(p.title + ' ' + p.desc)),
-    ...nasaFlickrPhotos,
+    // Other Flickr sources
+    ...flickrPhotos.filter(p => !['SpaceX','NASA KSC'].includes(p.source)),
+    // Remaining NASA API results
     ...nasaApiPhotos,
   ].filter(p => {
     if (!p.url || seenUrls.has(p.url)) return false;
@@ -205,12 +251,12 @@ async function fetchAllPhotos() {
     return true;
   });
 
-  const result = [...pinnedPhotoCache, ...dynamic].slice(0, 30);
+  const result = [...pinnedPhotoCache, ...dynamic].slice(0, 40);
 
   if (result.length > 0) {
     photoCache       = result;
     photoLastFetched = new Date();
-    console.log(`[${photoLastFetched.toISOString()}] Cached ${result.length} photos (${pinnedPhotoCache.length} pinned launch shots)`);
+    console.log(`[${photoLastFetched.toISOString()}] Cached ${result.length} photos (${pinnedPhotoCache.length} pinned, ${apodPhotos.length} APOD, ${flickrPhotos.length} Flickr, ${nasaApiPhotos.length} NASA API)`);
   }
 }
 

@@ -201,6 +201,126 @@ nav {
 .dot-cyan { background: var(--cyan); }
 .dot-blue { background: var(--nasa-blue); }
 
+/* FLYBY COUNTDOWN BANNER */
+.flyby-banner {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+.flyby-banner-body {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(6,182,212,0.05);
+  border: 1px solid rgba(6,182,212,0.22);
+  border-radius: 16px;
+  padding: 1rem 1.75rem;
+  backdrop-filter: blur(12px);
+  flex-wrap: wrap;
+  transition: background 0.4s, border-color 0.4s, box-shadow 0.4s;
+}
+.flyby-banner.active .flyby-banner-body {
+  background: rgba(6,182,212,0.11);
+  border-color: rgba(6,182,212,0.5);
+  box-shadow: 0 0 40px rgba(6,182,212,0.12);
+}
+.flyby-banner.done .flyby-banner-body {
+  border-color: rgba(16,185,129,0.3);
+  background: rgba(16,185,129,0.04);
+}
+.flyby-moon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.flyby-info { flex: 1; min-width: 160px; }
+.flyby-eyebrow {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.flyby-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+}
+.flyby-dist { font-size: 0.8rem; color: var(--text-dim); font-weight: 400; }
+.flyby-divider {
+  width: 1px;
+  height: 48px;
+  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+.flyby-timer-block { text-align: center; flex-shrink: 0; }
+.flyby-timer-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.flyby-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.flyby-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+.flyby-unit span {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+  min-width: 2.4ch;
+  text-align: center;
+}
+.flyby-unit small {
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.flyby-colon {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cyan);
+  line-height: 1;
+  margin-bottom: 0.6rem;
+  opacity: 0.6;
+}
+.flyby-date-block { text-align: right; flex-shrink: 0; }
+.flyby-date-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+.flyby-date-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cyan);
+  line-height: 1.4;
+}
+@media (max-width: 700px) {
+  .flyby-divider { display: none; }
+  .flyby-banner-body { gap: 1rem; }
+  .flyby-unit span { font-size: 1.2rem; }
+}
+
 /* MAIN GRID */
 main {
   position: relative;

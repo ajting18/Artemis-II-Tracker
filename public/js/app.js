@@ -339,6 +339,50 @@ function playFeatured(id, title, desc, badge, meta) {
   document.getElementById('videos').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ─── FLYBY COUNTDOWN ─────────────────────────────────────────────────────────
+const FLYBY_START = new Date('2026-04-05T14:24:00Z');  // T+88h
+const FLYBY_END   = new Date('2026-04-06T15:24:00Z');  // T+113h
+
+function updateFlybyCountdown() {
+  const now    = new Date();
+  const banner = document.getElementById('flybyBanner');
+  const label  = document.getElementById('flybyLabel');
+  const pad    = n => String(Math.max(0, n)).padStart(2, '0');
+
+  if (now < FLYBY_START) {
+    // Counting down
+    const diff = FLYBY_START - now;
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000)  / 60000);
+    const s = Math.floor((diff % 60000)    / 1000);
+    document.getElementById('flybyD').textContent = pad(d);
+    document.getElementById('flybyH').textContent = pad(h);
+    document.getElementById('flybyM').textContent = pad(m);
+    document.getElementById('flybyS').textContent = pad(s);
+    if (label) label.textContent = 'TIME UNTIL FLYBY';
+    banner.classList.remove('active', 'done');
+  } else if (now < FLYBY_END) {
+    // In progress
+    document.getElementById('flybyD').textContent = '🌙';
+    document.getElementById('flybyH').textContent = 'IN';
+    document.getElementById('flybyM').textContent = 'PROGRESS';
+    document.getElementById('flybyS').textContent = '!!';
+    if (label) label.textContent = '⚡ LUNAR FLYBY ACTIVE';
+    banner.classList.add('active');
+    banner.classList.remove('done');
+  } else {
+    // Complete
+    document.getElementById('flybyD').textContent = '✓';
+    document.getElementById('flybyH').textContent = '--';
+    document.getElementById('flybyM').textContent = '--';
+    document.getElementById('flybyS').textContent = '--';
+    if (label) label.textContent = 'FLYBY COMPLETE';
+    banner.classList.add('done');
+    banner.classList.remove('active');
+  }
+}
+
 // ─── LAST UPDATED ────────────────────────────────────────────────────────────
 function updateTimestamp() {
   document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
@@ -354,9 +398,11 @@ loadPhotos();
 updateTimestamp();
 updateClock();
 updateLocation();
+updateFlybyCountdown();
 
-setInterval(updateClock, 1000);
-setInterval(updateLocation, 5000);
-setInterval(updateTimestamp, 60000);
-setInterval(loadUpdates, 5 * 60 * 1000);   // refresh updates every 5 min
-setInterval(loadPhotos,  30 * 60 * 1000);  // refresh photos every 30 min
+setInterval(updateClock,           1000);
+setInterval(updateFlybyCountdown,  1000);
+setInterval(updateLocation,        5000);
+setInterval(updateTimestamp,       60000);
+setInterval(loadUpdates,    5  * 60 * 1000);
+setInterval(loadPhotos,     30 * 60 * 1000);
